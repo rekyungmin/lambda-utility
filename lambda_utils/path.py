@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+__all__ = ("PathExt",)
+
 import pathlib
 from typing import TypeVar
 
