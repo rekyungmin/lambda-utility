@@ -5,7 +5,7 @@ __all__ = ("PathExt",)
 import pathlib
 
 
-class PathExt(pathlib.PurePosixPath):
+class PathExt(pathlib.PosixPath):
     def with_stem(self, stem: str) -> PathExt:
         """
         :example:
