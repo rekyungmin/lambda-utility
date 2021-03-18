@@ -3,13 +3,10 @@ from __future__ import annotations
 __all__ = ("PathExt",)
 
 import pathlib
-from typing import TypeVar
-
-T = TypeVar("T", bound=pathlib.PurePath)
 
 
 class PathExt(pathlib.PurePosixPath):
-    def with_stem(self: T, stem: str) -> T:
+    def with_stem(self, stem: str) -> PathExt:
         """
         :example:
             >>> str(PathExt("tmp/hello.jpg").with_stem("world"))
@@ -17,7 +14,7 @@ class PathExt(pathlib.PurePosixPath):
         """
         return self.with_name(stem + self.suffix)
 
-    def append_stem(self: T, stem: str, *, tail: bool = True) -> T:
+    def append_stem(self, stem: str, *, tail: bool = True) -> PathExt:
         """
         :example:
             >>> str(PathExt("tmp/hello.jpg").append_stem("world", tail=True))
@@ -28,7 +25,7 @@ class PathExt(pathlib.PurePosixPath):
         new_stem = self.stem + stem if tail else stem + self.stem
         return self.with_stem(new_stem)
 
-    def replace_parent(self: T, parent: str) -> T:
+    def replace_parent(self, parent: str) -> PathExt:
         """
         :example:
             >>> str(PathExt("tmp/hello.jpg").replace_parent("opt"))
@@ -36,7 +33,7 @@ class PathExt(pathlib.PurePosixPath):
         """
         return self.parent.parent / parent / self.name
 
-    def append_parent(self: T, parent: str) -> T:
+    def append_parent(self, parent: str) -> PathExt:
         """
         :example:
             >>> str(PathExt("tmp/hello.jpg").append_parent("2x"))
