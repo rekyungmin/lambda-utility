@@ -17,7 +17,7 @@ import functools
 import io
 import tempfile
 from collections.abc import Callable
-from typing import Union, Optional, Any
+from typing import Union, Optional, Any, Iterator
 
 import boto3.s3.transfer
 
@@ -176,7 +176,7 @@ def ctx_download_file(
     callback: Optional[Callable] = None,
     config: Optional[boto3.s3.transfer.TransferConfig] = None,
     session_config: Optional[dict[str, Any]] = None,
-):
+) -> Iterator[str]:
     suffix = path.PathExt(key).suffix
     with tempfile.NamedTemporaryFile(suffix=suffix) as f:
         filename = f.name
