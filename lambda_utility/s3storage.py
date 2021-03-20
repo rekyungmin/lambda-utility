@@ -17,13 +17,12 @@ import functools
 import io
 import tempfile
 from collections.abc import Callable
-from typing import Union, Optional, Any, Iterator
+from typing import Optional, Any, Iterator
 
 import boto3.s3.transfer
 
 from lambda_utility import _session, path
-
-PathLike = Union[str, path.PathExt]
+from lambda_utility.typedefs import PathLike
 
 
 class ACL(enum.Enum):
