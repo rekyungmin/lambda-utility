@@ -9,6 +9,7 @@ from collections.abc import Iterable, Callable
 from types import TracebackType
 from typing import Optional, Type, Union
 
+from lambda_utility.path import PathExt
 from lambda_utility.typedefs import PathLike
 
 
@@ -22,15 +23,19 @@ class Unzip:
 
     zip_path: str
     zip_ref: zipfile.ZipFile
-    includes: Iterable[Union[re.Pattern, Callable[[str], bool]]]
-    excludes: Iterable[Union[re.Pattern, Callable[[str], bool]]]
+    includes: Iterable[Union[re.Pattern, Callable[[PathExt], bool]]]
+    excludes: Iterable[Union[re.Pattern, Callable[[PathExt], bool]]]
 
     def __init__(
         self,
         zip_path: PathLike,
         *,
-        includes: Optional[Iterable[Union[re.Pattern, Callable[[str], bool]]]] = None,
-        excludes: Optional[Iterable[Union[re.Pattern, Callable[[str], bool]]]] = None,
+        includes: Optional[
+            Iterable[Union[re.Pattern, Callable[[PathExt], bool]]]
+        ] = None,
+        excludes: Optional[
+            Iterable[Union[re.Pattern, Callable[[PathExt], bool]]]
+        ] = None,
     ):
         self.zip_path = str(zip_path)
         self.includes = includes if includes is not None else []
@@ -52,7 +57,7 @@ class Unzip:
         self,
         *,
         path: Optional[PathLike] = None,
-        files: Optional[Iterable[str]] = None,
+        files: Optional[Iterable[PathLike]] = None,
         pwd: Optional[bytes] = None,
     ) -> list[str]:
         if path is not None:
@@ -61,39 +66,42 @@ class Unzip:
         if files is None:
             files = self.get_valid_namelist()
 
-        self.zip_ref.extractall(path=path, members=files, pwd=pwd)
-        return list(files)
+        members: list[str] = list(map(str, files))
+        self.zip_ref.extractall(path=path, members=members, pwd=pwd)
+        return members
 
     @functools.lru_cache
     def get_valid_namelist(self) -> tuple[str, ...]:
         return tuple(
-            zipped_file
-            for zipped_file in self.get_namelist()
-            if self.check_includes(zipped_file) and not self.check_excludes(zipped_file)
+            zipped_file.filename
+            for zipped_file in self.get_infolist()
+            if not zipped_file.is_dir()
+            and self.check_includes(zipped_file.filename)
+            and not self.check_excludes(zipped_file.filename)
         )
 
     @functools.lru_cache
-    def get_namelist(self) -> tuple[str, ...]:
-        return tuple(self.zip_ref.namelist())
+    def get_infolist(self) -> tuple[zipfile.ZipInfo, ...]:
+        return tuple(self.zip_ref.infolist())
 
-    def check_excludes(self, filename: PathLike) -> bool:
-        filename = str(filename)
+    def check_excludes(self, path: PathLike) -> bool:
+        path = PathExt(path)
         for exclude in self.excludes:
             if isinstance(exclude, re.Pattern):
-                if exclude.search(filename):
+                if exclude.search(str(path)):
                     return True
             elif callable(exclude):
-                if exclude(filename):
+                if exclude(path):
                     return True
         return False
 
-    def check_includes(self, filename: PathLike) -> bool:
-        filename = str(filename)
+    def check_includes(self, path: PathLike) -> bool:
+        path = PathExt(path)
         for include in self.includes:
             if isinstance(include, re.Pattern):
-                if not include.search(filename):
+                if not include.search(str(path)):
                     return False
             elif callable(include):
-                if not include(filename):
+                if not include(PathExt(path)):
                     return False
         return True
