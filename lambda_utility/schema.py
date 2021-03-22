@@ -4,7 +4,13 @@ __all__ = (
     "camelize",
     "pascalize",
     "BaseSchema",
+    "S3ResponseMetadata",
+    "S3GetObjectResponse",
+    "S3PutObjectResponse",
+    "S3HeadObjectResponse",
 )
+
+from typing import Dict, Optional
 
 import pydantic
 
@@ -37,6 +43,54 @@ class BaseSchema(pydantic.BaseModel):
     class Config:
         alias_generator = camelize
         allow_population_by_field_name = True
+
+
+class _S3BaseSchema(pydantic.BaseModel):
+    class Config:
+        alias_generator = pascalize
+        allow_population_by_field_name = True
+
+
+class S3ResponseMetadata(_S3BaseSchema):
+    request_id: str
+    host_id: str
+    http_status_code: int = pydantic.Field(..., alias="HTTPStatusCode")
+    http_headers: Dict[str, str] = pydantic.Field(..., alias="HTTPHeaders")
+    retry_attempts: int
+
+
+class S3GetObjectResponse(_S3BaseSchema):
+    """
+    https://botocore.amazonaws.com/v1/documentation/api/latest/reference/services/s3.html#S3.Client.get_object
+    """
+
+    response_metadata: S3ResponseMetadata
+    metadata: Dict[str, str]
+    content_length: int
+    content_type: str
+    metadata: Dict[str, str]
+    body: Optional[bytes] = None
+
+
+class S3PutObjectResponse(_S3BaseSchema):
+    """
+    https://botocore.amazonaws.com/v1/documentation/api/latest/reference/services/s3.html#S3.Client.put_object
+    """
+
+    response_metadata: S3ResponseMetadata
+    e_tag: str
+
+
+class S3HeadObjectResponse(_S3BaseSchema):
+    """
+    https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/s3.html#S3.Client.head_object
+    """
+
+    response_metadata: S3ResponseMetadata
+    metadata: Dict[str, str]
+    content_length: int
+    content_type: str
+    metadata: Dict[str, str]
 
 
 if __name__ == "__main__":
