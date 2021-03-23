@@ -16,6 +16,7 @@ from typing import Any, Optional, Literal, BinaryIO, Union, AsyncIterator
 import aiobotocore
 import botocore.client
 
+from lambda_utility._session import create_client
 from lambda_utility.path import PathExt
 from lambda_utility.schema import (
     S3GetObjectResponse,
@@ -23,7 +24,6 @@ from lambda_utility.schema import (
     S3HeadObjectResponse,
 )
 from lambda_utility.typedefs import PathLike
-from lambda_utility._session import create_client
 
 
 async def download_object(
@@ -34,10 +34,6 @@ async def download_object(
     config: Optional[botocore.client.Config] = None,
     **kwargs: Any,
 ) -> S3GetObjectResponse:
-    """
-    :exception: botocore.errorfactory.NoSuchBucket
-    :exception: botocore.errorfactory.NoSuchKey
-    """
     if client is None:
         client = create_client("s3", config=config)
 
