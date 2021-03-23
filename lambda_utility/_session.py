@@ -7,7 +7,6 @@ from typing import Optional, Union
 import aiobotocore
 import botocore.client
 
-
 DEFAULT_CONFIG = botocore.client.Config(connect_timeout=300, read_timeout=300)
 
 
