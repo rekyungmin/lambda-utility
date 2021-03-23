@@ -7,7 +7,7 @@ from typing import Optional, Literal, Union, BinaryIO
 import aiobotocore
 import botocore.client
 
-from lambda_utility._session import create_client
+from lambda_utility.session import create_client
 from lambda_utility.schema import LambdaInvocationResponse
 
 InvocationType = Literal["Event", "RequestResponse", "DryRun"]

@@ -16,7 +16,7 @@ from typing import Any, Optional, Literal, BinaryIO, Union, AsyncIterator
 import aiobotocore
 import botocore.client
 
-from lambda_utility._session import create_client
+from lambda_utility.session import create_client
 from lambda_utility.path import PathExt
 from lambda_utility.schema import (
     S3GetObjectResponse,

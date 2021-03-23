@@ -1,6 +1,9 @@
 from __future__ import annotations
 
-__all__ = ("create_client",)
+__all__ = (
+    "DEFAULT_CONFIG",
+    "create_client",
+)
 
 from typing import Optional, Union
 
