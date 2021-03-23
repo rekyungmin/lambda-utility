@@ -1,34 +1,42 @@
 from __future__ import annotations
 
-__all__ = (
-    "InvocationType",
-    "invoke",
-)
+__all__ = ("invoke",)
 
-import enum
-from typing import Any, Optional
+from typing import Optional, Literal, Union, BinaryIO
 
-from lambda_utility import _session
+import aiobotocore
+import botocore.client
 
+from lambda_utility._session import create_client
+from lambda_utility.schema import LambdaInvocationResponse
 
-class InvocationType(enum.Enum):
-    EVENT = "Event"
-    REQUEST_RESPONSE = "RequestResponse"
-    DRY_RUN = "DryRun"
+InvocationType = Literal["Event", "RequestResponse", "DryRun"]
+LogType = Literal["None", "Tail"]
 
 
-def invoke(
+async def invoke(
     function_name: str,
     invocation_type: InvocationType,
-    payload_json: str = "",
+    payload: Union[bytes, BinaryIO],
+    log_type: LogType = "None",
     *,
-    session_config: Optional[dict[str, Any]] = None,
-) -> dict[str, Any]:
-    if session_config is None:
-        session_config = {}
-    session = _session.get_client("lambda", **session_config)
-    return session.invoke(
-        FunctionName=function_name,
-        InvocationType=invocation_type.value,
-        Payload=payload_json,
-    )
+    client: Optional[aiobotocore.session.ClientCreatorContext] = None,
+    config: Optional[botocore.client.Config] = None,
+) -> LambdaInvocationResponse:
+    if client is None:
+        client = create_client("lambda", config=config)
+
+    async with client as client_obj:
+        resp = await client_obj.invoke(
+            FunctionName=function_name,
+            InvocationType=invocation_type,
+            LogType=log_type,
+            Payload=payload,
+        )
+        try:
+            received_payload_stream = resp.pop("Payload")
+            received_payload = await received_payload_stream.read()
+        except KeyError:
+            received_payload = None
+
+        return LambdaInvocationResponse(**resp, payload=received_payload)
