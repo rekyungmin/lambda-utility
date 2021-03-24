@@ -5,7 +5,8 @@ __all__ = (
     "pascalize",
     "Base64String",
     "JsonString",
-    "UpperStr",
+    "UpperString",
+    "BoolString",
     "PathExtField",
     "BaseSchema",
     "AWSResponseMetadata",
@@ -14,15 +15,13 @@ __all__ = (
     "S3HeadObjectResponse",
     "LambdaInvocationResponse",
     "S3Object",
-    "StrBool",
     "ImageMeta",
 )
 
 import base64
-import enum
 import json
 import pathlib
-from typing import Dict, Optional, AnyStr, Any, cast
+from typing import Dict, Optional, AnyStr, Any, cast, Union
 
 import pydantic
 
@@ -94,7 +93,7 @@ class JsonString(str):
             raise ValueError("invalid JSON string format")
 
 
-class UpperStr(str):
+class UpperString(str):
     @classmethod
     def __get_validators__(cls):
         yield cls.validate
@@ -105,6 +104,24 @@ class UpperStr(str):
             raise TypeError("string required")
 
         return v.upper()
+
+
+class BoolString(str):
+    @classmethod
+    def __get_validators__(cls):
+        yield cls.validate
+
+    @classmethod
+    def validate(cls, v: Union[str, bool]) -> str:
+        if isinstance(v, str):
+            v = v.upper()
+            if v not in ("YES", "NO"):
+                raise ValueError("valid value: 'YES' or 'NO'")
+
+        elif isinstance(v, bool):
+            v = "YES" if v else "NO"
+
+        return v
 
 
 class PathExtField(PathExt):
@@ -192,23 +209,12 @@ class S3Object(_AWSBaseSchema):
     key: PathExtField
 
 
-class StrBool(str, enum.Enum):
-    YES = "YES"
-    NO = "NO"
-
-    def __str__(self) -> str:
-        return self.value
-
-    def __repr__(self) -> str:
-        return self.value
-
-
 class ImageMeta(pydantic.BaseModel):
     width: str = pydantic.Field(..., regex=r"^[0-9]+$")
     height: str = pydantic.Field(..., regex=r"^[0-9]+$")
-    container: UpperStr
-    codec: UpperStr
-    alpha: StrBool
+    container: UpperString
+    codec: UpperString
+    alpha: BoolString
 
     def has_alpha(self) -> bool:
         return self.alpha == "YES"
