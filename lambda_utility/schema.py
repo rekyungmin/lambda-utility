@@ -199,6 +199,9 @@ class StrBool(str, enum.Enum):
     def __str__(self) -> str:
         return self.value
 
+    def __repr__(self) -> str:
+        return self.value
+
 
 class ImageMeta(pydantic.BaseModel):
     width: str = pydantic.Field(..., regex=r"^[0-9]+$")
