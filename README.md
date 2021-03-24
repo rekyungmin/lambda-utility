@@ -10,3 +10,18 @@ Python 3.7 +
 ```bash
 $ pip install lambda-utility
 ```
+
+## Create a layer file
+```bash
+$ python layer
+
+...
+Complete -> 'lambda-utility.zip'
+```
+or
+```bash
+$ python layer -o {filename}
+
+...
+Complete -> '{filename}'
+```
