@@ -226,6 +226,7 @@ class ImageMeta(pydantic.BaseModel):
     container: UpperString
     codec: UpperString
     alpha: BoolString
+    request: JsonDumpString = pydantic.Field("")
 
     def has_alpha(self) -> bool:
         return self.alpha == "YES"
