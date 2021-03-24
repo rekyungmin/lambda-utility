@@ -25,6 +25,9 @@ from lambda_utility.schema import (
 )
 from lambda_utility.typedefs import PathLike
 
+KB = 1024
+DEFAULT_CHUNK_SIZE = 64 * KB
+
 
 async def download_object(
     bucket: str,
@@ -57,13 +60,27 @@ async def download_file(
     *,
     client: Optional[aiobotocore.session.ClientCreatorContext] = None,
     config: Optional[botocore.client.Config] = None,
+    chunk_size: int = DEFAULT_CHUNK_SIZE,
+    **kwargs: Any,
 ) -> S3GetObjectResponse:
-    data = await download_object(bucket, key, client=client, config=config)
-    with open(filename, "wb") as f:
-        f.write(data.body or b"")
+    if client is None:
+        client = create_client("s3", config=config)
 
-    data.body = None
-    return data
+    async with client as client_obj:
+        resp = await client_obj.get_object(Bucket=bucket, Key=str(key), **kwargs)
+
+        stream = resp["Body"]
+        with open(filename, "wb") as f:
+            async for chunk in stream.iter_chunks(chunk_size=chunk_size):
+                f.write(chunk)
+
+    return S3GetObjectResponse(
+        content_type=resp["ContentType"],
+        content_length=resp["ContentLength"],
+        response_metadata=resp["ResponseMetadata"],
+        metadata=resp["Metadata"],
+        body=None,
+    )
 
 
 ACLType = Literal[
