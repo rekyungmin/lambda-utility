@@ -5,19 +5,25 @@ __all__ = (
     "pascalize",
     "Base64String",
     "JsonString",
+    "PathExtField",
     "BaseSchema",
     "AWSResponseMetadata",
     "S3GetObjectResponse",
     "S3PutObjectResponse",
     "S3HeadObjectResponse",
     "LambdaInvocationResponse",
+    "S3Object",
 )
 
 import base64
 import json
+import pathlib
 from typing import Dict, Optional, AnyStr, Any, cast
 
 import pydantic
+
+from lambda_utility.path import PathExt
+from lambda_utility.typedefs import PathLike
 
 
 def camelize(s: str) -> str:
@@ -67,7 +73,7 @@ class Base64String(str):
         return f"Base64String({super().__repr__()})"
 
 
-class JsonString:
+class JsonString(str):
     @classmethod
     def __get_validators__(cls):
         yield cls.validate
@@ -82,6 +88,22 @@ class JsonString:
             return json.JSONDecoder().decode(v_str)
         except Exception:
             raise ValueError("invalid JSON string format")
+
+
+class PathExtField(PathExt):
+    @classmethod
+    def __get_validators__(cls):
+        yield cls.validate
+
+    @classmethod
+    def validate(cls, v: PathLike) -> Any:
+        if not isinstance(v, (str, pathlib.PurePath)):
+            raise TypeError("pathlike required")
+
+        try:
+            return PathExt(v)
+        except Exception:
+            raise ValueError("invalid path format")
 
 
 class BaseSchema(pydantic.BaseModel):
@@ -146,6 +168,11 @@ class LambdaInvocationResponse(_AWSBaseSchema):
     executed_version: Optional[str] = None
     function_error: Optional[str] = None
     log_result: Optional[Base64String] = None
+
+
+class S3Object(_AWSBaseSchema):
+    bucket_name: str
+    object_key: PathExtField
 
 
 if __name__ == "__main__":
