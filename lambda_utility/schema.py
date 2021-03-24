@@ -5,6 +5,7 @@ __all__ = (
     "pascalize",
     "Base64String",
     "JsonString",
+    "JsonDumpString",
     "UpperString",
     "BoolString",
     "PathExtField",
@@ -91,6 +92,16 @@ class JsonString(str):
             return json.JSONDecoder().decode(v_str)
         except Exception:
             raise ValueError("invalid JSON string format")
+
+
+class JsonDumpString(str):
+    @classmethod
+    def __get_validators__(cls):
+        yield cls.validate
+
+    @classmethod
+    def validate(cls, v: Any) -> str:
+        return json.dumps(v)
 
 
 class UpperString(str):
