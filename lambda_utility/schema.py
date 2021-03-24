@@ -102,7 +102,12 @@ class JsonDumpString(str):
 
     @classmethod
     def validate(cls, v: Any) -> str:
-        return json.dumps(v)
+        if isinstance(v, pydantic.BaseModel):
+            return v.json()
+        try:
+            return json.dumps(v)
+        except TypeError:
+            raise ValueError(f"invalid value -> {v!r}")
 
 
 class UpperString(str):
