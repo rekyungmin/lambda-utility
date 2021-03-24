@@ -338,3 +338,6 @@ moonshot/media/
 !.elasticbeanstalk/config.yml
 !.elasticbeanstalk/*.cfg.yml
 !.elasticbeanstalk/*.global.yml
+
+# Lambda layer file
+/*.zip
