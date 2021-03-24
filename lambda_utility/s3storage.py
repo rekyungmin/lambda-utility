@@ -37,6 +37,9 @@ async def download_object(
     config: Optional[botocore.client.Config] = None,
     **kwargs: Any,
 ) -> S3GetObjectResponse:
+    """
+    ref: https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/s3.html#S3.Client.get_object
+    """
     if client is None:
         client = create_client("s3", config=config)
 
@@ -63,6 +66,9 @@ async def download_file(
     chunk_size: int = DEFAULT_CHUNK_SIZE,
     **kwargs: Any,
 ) -> S3GetObjectResponse:
+    """
+    ref: https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/s3.html#S3.Client.get_object
+    """
     if client is None:
         client = create_client("s3", config=config)
 
@@ -105,6 +111,9 @@ async def upload_object(
     config: Optional[botocore.client.Config] = None,
     **kwargs: Any,
 ) -> S3PutObjectResponse:
+    """
+    ref: https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/s3.html#S3.Client.put_object
+    """
     if client is None:
         client = create_client("s3", config=config)
     if metadata is None:
@@ -129,6 +138,9 @@ async def upload_file(
     config: Optional[botocore.client.Config] = None,
     **kwargs: Any,
 ) -> S3PutObjectResponse:
+    """
+    ref: https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/s3.html#S3.Client.put_object
+    """
     with open(filepath, "rb") as f:
         return await upload_object(
             bucket,
@@ -150,6 +162,9 @@ async def fetch_head(
     config: Optional[botocore.client.Config] = None,
     **kwargs: Any,
 ) -> S3HeadObjectResponse:
+    """
+    ref: https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/s3.html#S3.Client.head_object
+    """
     if client is None:
         client = create_client("s3", config=config)
 
@@ -166,10 +181,14 @@ async def ctx_download_file(
     *,
     client: Optional[aiobotocore.session.ClientCreatorContext] = None,
     config: Optional[botocore.client.Config] = None,
+    **kwargs: Any,
 ) -> AsyncIterator[tuple[PathExt, S3GetObjectResponse]]:
+    """
+    ref: https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/s3.html#S3.Client.get_object
+    """
     suffix = PathExt(key).suffix
     with tempfile.NamedTemporaryFile(suffix=suffix) as f:
-        resp = await download_object(bucket, key, client=client, config=config)
+        resp = await download_object(bucket, key, client=client, config=config, **kwargs)
         f.write(resp.body or b"")
         resp.body = None
         yield PathExt(f.name), resp
