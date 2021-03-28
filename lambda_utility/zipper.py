@@ -105,3 +105,25 @@ class Unzip:
                 if not include(PathExt(path)):
                     return False
         return True
+
+    def get_sequence_names(self, extension: str) -> tuple[str, ...]:
+        extension = extension.lstrip(".")
+        pattern = re.compile(fr"(\d+)(\.{extension})$", flags=re.IGNORECASE)
+
+        sequence_names: dict[int, str] = {}
+
+        for name in self.get_valid_namelist():
+            m = pattern.search(name)
+            if not m:
+                continue
+
+            num = int(m.group(1))
+            if num in sequence_names:
+                raise ValueError(
+                    f"duplicate number -> {sequence_names[num]!r}, {name!r}"
+                )
+
+            sequence_names[num] = name
+
+        sorted_result = sorted(sequence_names.items())
+        return tuple(name for _, name in sorted_result)
