@@ -32,7 +32,6 @@ async def get_queue_url(
 
     async with client as client_obj:
         response = await client_obj.get_queue_url(QueueName=queue_name)
-        print(response)
         return response["QueueUrl"]
 
 
