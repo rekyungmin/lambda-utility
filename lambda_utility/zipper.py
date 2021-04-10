@@ -3,11 +3,12 @@ from __future__ import annotations
 __all__ = ("Unzip",)
 
 import functools
+import io
 import re
 import zipfile
 from collections.abc import Iterable, Callable
 from types import TracebackType
-from typing import Optional, Type, Union
+from typing import Optional, Type, Union, BinaryIO
 
 from lambda_utility.path import PathExt
 from lambda_utility.typedefs import PathLike
@@ -20,15 +21,14 @@ class Unzip:
         "includes",
         "excludes",
     )
-
-    zip_path: str
+    zip_path: Union[BinaryIO, PathLike]
     zip_ref: zipfile.ZipFile
     includes: Iterable[Union[re.Pattern, Callable[[PathExt], bool]]]
     excludes: Iterable[Union[re.Pattern, Callable[[PathExt], bool]]]
 
     def __init__(
         self,
-        zip_path: PathLike,
+        zip_path: Union[BinaryIO, PathLike],
         *,
         includes: Optional[
             Iterable[Union[re.Pattern, Callable[[PathExt], bool]]]
@@ -37,7 +37,7 @@ class Unzip:
             Iterable[Union[re.Pattern, Callable[[PathExt], bool]]]
         ] = None,
     ):
-        self.zip_path = str(zip_path)
+        self.zip_path = zip_path if isinstance(zip_path, io.BytesIO) else str(zip_path)
         self.includes = includes if includes is not None else []
         self.excludes = excludes if excludes is not None else []
 
