@@ -10,23 +10,45 @@ __all__ = (
 )
 
 import contextlib
+import dataclasses
+import enum
+import json
 import tempfile
 from typing import Any, Optional, Literal, BinaryIO, Union, AsyncIterator
 
 import aiobotocore
 import botocore.client
 
-from lambda_utility.session import create_client
 from lambda_utility.path import PathExt
 from lambda_utility.schema import (
     S3GetObjectResponse,
     S3PutObjectResponse,
     S3HeadObjectResponse,
 )
+from lambda_utility.session import create_client
 from lambda_utility.typedefs import PathLike
 
 KB = 1024
 DEFAULT_CHUNK_SIZE = 64 * KB
+
+
+def _stringfy_metadata(metadata: dict) -> dict[str, str]:
+    result: dict[str, str] = {}
+    for k, v in metadata.items():
+        if isinstance(v, enum.Enum):
+            v = v.value
+        elif isinstance(v, (dict, list, tuple)):
+            v = json.dumps(v)
+        elif dataclasses._is_dataclass_instance(v):  # type: ignore
+            v = json.dumps(dataclasses.asdict(v))
+        elif getattr(v, "json", None) is not None:
+            v = v.json() if callable(v.json) else str(v.json)
+        elif getattr(v, "to_json", None) is not None:
+            v = v.to_json() if callable(v.to_json) else str(v.to_json)
+
+        result[str(k)] = str(v)
+
+    return result
 
 
 async def download_object(
@@ -106,7 +128,7 @@ async def upload_object(
     body: Union[bytes, BinaryIO],
     *,
     acl: ACLType = "private",
-    metadata: Optional[dict[str, str]] = None,
+    metadata: Optional[dict] = None,
     client: Optional[aiobotocore.session.ClientCreatorContext] = None,
     config: Optional[botocore.client.Config] = None,
     **kwargs: Any,
@@ -121,7 +143,12 @@ async def upload_object(
 
     async with client as client_obj:
         resp = await client_obj.put_object(
-            Bucket=bucket, Key=str(key), Body=body, ACL=acl, Metadata=metadata, **kwargs
+            Bucket=bucket,
+            Key=str(key),
+            Body=body,
+            ACL=acl,
+            Metadata=_stringfy_metadata(metadata),
+            **kwargs,
         )
 
     return S3PutObjectResponse(**resp)
