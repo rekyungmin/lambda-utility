@@ -239,7 +239,7 @@ class SQSMessageResponse(_AWSBaseSchema):
     sequence_number: Optional[str] = None
 
 
-class S3Object(_AWSBaseSchema):
+class S3Object(BaseSchema):
     bucket: str
     key: PathExtField
 
