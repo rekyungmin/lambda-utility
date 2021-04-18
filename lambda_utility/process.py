@@ -8,9 +8,9 @@ __all__ = (
 
 import asyncio
 import enum
+import logging
 import pathlib
 import sys
-import logging
 from typing import Optional, Union
 
 logger = logging.getLogger(__file__)
