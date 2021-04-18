@@ -8,6 +8,7 @@ __all__ = (
 
 import asyncio
 import enum
+import pathlib
 import sys
 import logging
 from typing import Optional, Union
@@ -41,7 +42,7 @@ def optionize(*params: Union[str, tuple[str, Union[str, float, bool]]]) -> list[
     for p in params:
         if isinstance(p, str):
             options.append(p)
-        elif isinstance(p, (int, float)):
+        elif isinstance(p, (int, float, pathlib.PurePath)):
             options.append(str(p))
         elif isinstance(p, enum.Enum):
             options.append(str(p.value))
