@@ -60,6 +60,16 @@ class Unzip:
         files: Optional[Iterable[PathLike]] = None,
         pwd: Optional[bytes] = None,
     ) -> list[str]:
+        # NOTE: Deprecated 1.2.0
+        return self.extract_all(path=path, files=files, pwd=pwd)
+
+    def extract_all(
+        self,
+        *,
+        path: Optional[PathLike] = None,
+        files: Optional[Iterable[PathLike]] = None,
+        pwd: Optional[bytes] = None,
+    ) -> list[str]:
         if path is not None:
             path = str(path)
 
@@ -69,6 +79,18 @@ class Unzip:
         members: list[str] = list(map(str, files))
         self.zip_ref.extractall(path=path, members=members, pwd=pwd)
         return members
+
+    def extract_all_in_memory(
+        self,
+        files: Optional[Iterable[PathLike]] = None,
+        pwd: Optional[bytes] = None,
+    ) -> Iterable[tuple[str, bytes]]:
+        if files is None:
+            files = self.get_valid_namelist()
+
+        for filename in files:
+            filename = str(filename)
+            yield filename, self.zip_ref.read(str(filename), pwd=pwd)
 
     @functools.lru_cache
     def get_valid_namelist(self) -> tuple[str, ...]:
