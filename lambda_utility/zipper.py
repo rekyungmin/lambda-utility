@@ -1,6 +1,10 @@
 from __future__ import annotations
 
-__all__ = ("Unzip",)
+__all__ = (
+    "Unzip",
+    "is_image_sequence",
+    "is_dot_file",
+)
 
 import functools
 import io
@@ -149,3 +153,33 @@ class Unzip:
 
         sorted_result = sorted(sequence_names.items())
         return tuple(name for _, name in sorted_result)
+
+
+def is_image_sequence(path: PathExt) -> bool:
+    """ validate image seuqnece file
+    {sequence number}.{extension} or {filename}_{sequence number}.{extension}
+    :examples:
+        >>> is_image_sequence(PathExt("path/to/cat_001.png"))
+        True
+        >>> is_image_sequence(PathExt("path/to/001.png"))
+        True
+        >>> is_image_sequence(PathExt("path/to/cat001.png"))
+        False
+    """
+    return bool(
+        re.fullmatch(
+            r"^(.*_)?(\d+)\.([pP][nN][gG]|[jJ][pP][gG]|[jJ][pP][eE][gG])$", path.name
+        )
+    )
+
+
+def is_dot_file(path: PathExt) -> bool:
+    """ validate a dot file (like a system file)
+    :examples:
+        >>> is_dot_file(PathExt("path/to/.hello.png"))
+        True
+        >>> is_dot_file(PathExt("path/to/hello.png"))
+        False
+    """
+
+    return path.name.startswith(".")
