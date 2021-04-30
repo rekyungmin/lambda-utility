@@ -64,7 +64,11 @@ class Unzip:
         files: Optional[Iterable[PathLike]] = None,
         pwd: Optional[bytes] = None,
     ) -> list[str]:
-        # NOTE: Deprecated 1.2.0
+        """
+        :deprecated: 1.3.0
+        """
+        from warnings import warn
+        warn("__call__ method is officially deprecated and will be removed in lambda-utility v1.3.0")
         return self.extract_all(path=path, files=files, pwd=pwd)
 
     def extract_all(
