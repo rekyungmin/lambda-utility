@@ -68,7 +68,10 @@ class Unzip:
         :deprecated: 1.3.0
         """
         from warnings import warn
-        warn("__call__ method is officially deprecated and will be removed in lambda-utility v1.3.0")
+
+        warn(
+            "__call__ method is officially deprecated and will be removed in lambda-utility v1.3.0"
+        )
         return self.extract_all(path=path, files=files, pwd=pwd)
 
     def extract_all(
@@ -159,8 +162,10 @@ class Unzip:
         return tuple(name for _, name in sorted_result)
 
 
-def is_image_sequence(path: PathExt) -> bool:
-    """ validate image seuqnece file
+def is_image_sequence(
+    path: PathExt, *, allowed_extension: Optional[str] = None
+) -> bool:
+    """validate image seuqnece file
     {sequence number}.{extension} or {filename}_{sequence number}.{extension}
     :examples:
         >>> is_image_sequence(PathExt("path/to/cat_001.png"))
@@ -169,21 +174,28 @@ def is_image_sequence(path: PathExt) -> bool:
         True
         >>> is_image_sequence(PathExt("path/to/cat001.png"))
         False
+        >>> is_image_sequence(PathExt("path/to/cat001.webp"))
+        False
+        >>> is_image_sequence(PathExt("path/to/cat001.webp", allowed_extension="webp"))
+        True
     """
-    return bool(
-        re.fullmatch(
-            r"^(.*_)?(\d+)\.([pP][nN][gG]|[jJ][pP][gG]|[jJ][pP][eE][gG])$", path.name
+    if allowed_extension is None:
+        return bool(
+            re.fullmatch(
+                r"^(.*_)?(\d+)\.([pP][nN][gG]|[jJ][pP][gG]|[jJ][pP][eE][gG])$",
+                path.name,
+            )
         )
-    )
+    else:
+        return bool(re.fullmatch(fr"^(.*_)?(\d+)\.({allowed_extension})$", path.name))
 
 
 def is_dot_file(path: PathExt) -> bool:
-    """ validate a dot file (like a system file)
+    """validate a dot file (like a system file)
     :examples:
         >>> is_dot_file(PathExt("path/to/.hello.png"))
         True
         >>> is_dot_file(PathExt("path/to/hello.png"))
         False
     """
-
     return path.name.startswith(".")
