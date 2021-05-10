@@ -11,9 +11,8 @@ import io
 import re
 import zipfile
 import pathlib
-from collections.abc import Iterable, Callable
 from types import TracebackType
-from typing import Optional, Type, Union, BinaryIO
+from typing import Optional, Type, Union, BinaryIO, Iterable, Callable
 
 from lambda_utility.path import PathExt
 from lambda_utility.typedefs import PathLike

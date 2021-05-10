@@ -24,7 +24,7 @@ __all__ = (
 import base64
 import json
 import pathlib
-from typing import Dict, Optional, AnyStr, Any, cast, Union
+from typing import Dict, Optional, AnyStr, Any, cast, Union, List
 
 import pydantic
 

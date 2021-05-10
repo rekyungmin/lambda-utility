@@ -10,8 +10,7 @@ import json
 import multiprocessing.connection
 import re
 import traceback
-from collections.abc import Callable
-from typing import Any
+from typing import Any, Callable
 
 
 def _get_traceback() -> list[str]:
