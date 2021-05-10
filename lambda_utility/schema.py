@@ -15,6 +15,7 @@ __all__ = (
     "S3PutObjectResponse",
     "S3HeadObjectResponse",
     "LambdaInvocationResponse",
+    "LambdaErrorResponse",
     "SQSMessageResponse",
     "S3Object",
     "ImageMeta",
@@ -220,6 +221,12 @@ class LambdaInvocationResponse(_AWSBaseSchema):
     executed_version: Optional[str] = None
     function_error: Optional[str] = None
     log_result: Optional[Base64String] = None
+
+
+class LambdaErrorResponse(BaseSchema):
+    error_message: str
+    error_type: str
+    stack_trace: List[str]
 
 
 class SQSMessageResponse(_AWSBaseSchema):
