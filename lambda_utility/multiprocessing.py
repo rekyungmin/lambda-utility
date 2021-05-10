@@ -69,7 +69,7 @@ class LambdaMultiprocessing:
         self._processes = []
         self._parent_connections = []
 
-    def register(self, func: Callable[..., Any], *args: Any, **kwargs: Any) -> None:
+    def add_process(self, func: Callable[..., Any], *args: Any, **kwargs: Any) -> None:
         cb = functools.partial(func, *args, **kwargs)
         parent_conn, child_conn = multiprocessing.Pipe()
         process = multiprocessing.Process(target=_run_callable, args=(child_conn, cb))
