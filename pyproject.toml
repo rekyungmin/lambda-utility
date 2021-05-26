@@ -7,7 +7,6 @@ maintainers = ["Pie <pie.pie@kakaoent.com>"]
 readme = "README.md"
 homepage = "https://github.com/kakao-webtoon/lambda-utility"
 repository = "https://github.com/kakao-webtoon/lambda-utility"
-license = "MIT"
 
 [tool.poetry.dependencies]
 python = "^3.7"
