@@ -247,8 +247,8 @@ class SQSMessageResponse(_AWSBaseSchema):
 
 
 class S3Object(BaseSchema):
-    bucket: str
-    key: PathExtField
+    bucket: str = pydantic.Field(..., alias="bucket_name")
+    key: PathExtField = pydantic.Field(..., alias="object_key")
 
 
 class ImageMeta(pydantic.BaseModel):
