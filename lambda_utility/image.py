@@ -81,7 +81,9 @@ def _resize_image_to_maintain_aspect_ratio(
         image.size, target_width=width, target_height=height
     )
     if image.size != target_size:
+        fmt = image.format
         image = image.resize(target_size, resample)
+        image.format = fmt
     return image
 
 
