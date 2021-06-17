@@ -3,12 +3,14 @@ from __future__ import annotations
 __all__ = (
     "timeit_ctx_manager",
     "timeit_decorator",
+    "round_number",
 )
 
 import contextlib
+import decimal
 import functools
 import time
-from typing import TypeVar, Any, cast, Optional, Callable
+from typing import TypeVar, Any, cast, Optional, Callable, Literal
 
 
 @contextlib.contextmanager
@@ -37,3 +39,25 @@ def timeit_decorator(func: F) -> F:
         return result
 
     return cast(F, wrapper)
+
+
+def round_number(
+    number: float,
+    ndigits: int = 0,
+    round_method: Literal[
+        "ROUND_DOWN",
+        "ROUND_HALF_UP",
+        "ROUND_HALF_EVEN",
+        "ROUND_CEILING",
+        "ROUND_FLOOR",
+        "ROUND_UP",
+        "ROUND_HALF_DOWN",
+        "ROUND_05UP",
+    ] = "ROUND_HALF_UP",
+) -> float:
+    precision = "." + ("0" * (ndigits - 1)) + "1" if ndigits > 0 else "1"
+    return float(
+        decimal.Decimal(str(number)).quantize(
+            decimal.Decimal(precision), rounding=round_method
+        )
+    )
