@@ -9,6 +9,7 @@ __all__ = (
     "UpperString",
     "BoolString",
     "PathExtField",
+    "LogLevel",
     "BaseSchema",
     "AWSResponseMetadata",
     "S3GetObjectResponse",
@@ -24,6 +25,7 @@ __all__ = (
 
 import base64
 import json
+import logging
 import pathlib
 from typing import Dict, Optional, AnyStr, Any, cast, Union, List
 
@@ -157,6 +159,20 @@ class PathExtField(PathExt):
             return PathExt(v)
         except Exception:
             raise ValueError("invalid path format")
+
+
+class LogLevel(int):
+    @classmethod
+    def __get_validators__(cls):
+        yield cls.validate
+
+    @classmethod
+    def validate(cls, v: Union[str, int]) -> int:
+        try:
+            return int(v)
+        except ValueError:
+            v = cast(str, v)
+            return logging.getLevelName(v.upper())
 
 
 class BaseSchema(pydantic.BaseModel):
