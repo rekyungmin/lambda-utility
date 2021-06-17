@@ -1,7 +1,6 @@
 import argparse
 import subprocess
 
-
 ROOT_FOLDER_NAME = "python"
 PACKAGE_NAME = "lambda-utility"
 OUTPUT_FILENAME = "lambda-utility.zip"
@@ -9,6 +8,7 @@ OUTPUT_FILENAME = "lambda-utility.zip"
 
 def install():
     subprocess.run(["rm", "-rf", ROOT_FOLDER_NAME], check=True)
+    subprocess.run(["rm", "-rf", f"{PACKAGE_NAME}/__pycache__"])
     subprocess.run(["mkdir", ROOT_FOLDER_NAME], check=True)
     subprocess.run(["pip", "install", PACKAGE_NAME, "-t", ROOT_FOLDER_NAME], check=True)
 
