@@ -11,6 +11,7 @@ __all__ = (
     "PathExtField",
     "LogLevel",
     "BaseSchema",
+    "BaseGenericSchema",
     "AWSResponseMetadata",
     "S3GetObjectResponse",
     "S3PutObjectResponse",
@@ -30,6 +31,7 @@ import pathlib
 from typing import Dict, Optional, AnyStr, Any, cast, Union, List
 
 import pydantic
+import pydantic.generics
 
 from lambda_utility.path import PathExt
 from lambda_utility.typedefs import PathLike
@@ -176,6 +178,12 @@ class LogLevel(int):
 
 
 class BaseSchema(pydantic.BaseModel):
+    class Config:
+        alias_generator = camelize
+        allow_population_by_field_name = True
+
+
+class BaseGenericSchema(pydantic.generics.GenericModel):
     class Config:
         alias_generator = camelize
         allow_population_by_field_name = True
