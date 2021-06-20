@@ -278,11 +278,11 @@ class S3Object(BaseSchema):
 class ImageMeta(pydantic.BaseModel):
     """ for KW """
 
-    width: str = pydantic.Field(..., regex=r"^[0-9]+$")
-    height: str = pydantic.Field(..., regex=r"^[0-9]+$")
-    container: UpperString
-    codec: UpperString
     alpha: BoolString
+    width: str = pydantic.Field("0", regex=r"^[0-9]+$")
+    height: str = pydantic.Field("0", regex=r"^[0-9]+$")
+    container: UpperString = ""
+    codec: UpperString = ""
     request: JsonDumpString = JsonDumpString("")
 
     def has_alpha(self) -> bool:
