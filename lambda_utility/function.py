@@ -2,7 +2,7 @@ from __future__ import annotations
 
 __all__ = ("invoke",)
 
-from typing import Optional, Literal, Union, BinaryIO
+from typing import Optional, Literal, Union, BinaryIO, Any
 
 import aiobotocore
 import botocore.client
@@ -14,6 +14,18 @@ InvocationType = Literal["Event", "RequestResponse", "DryRun"]
 LogType = Literal["None", "Tail"]
 
 
+class LambdaInvokeError(Exception):
+    pass
+
+
+def is_success_response(payload: Any) -> bool:
+    if not isinstance(payload, dict):
+        return True
+
+    # TODO: 헤더 또는 다른 검증된 값을 이용하도록 변경 필요
+    return "errorMessage" in payload
+
+
 async def invoke(
     function_name: str,
     invocation_type: InvocationType,
@@ -22,6 +34,7 @@ async def invoke(
     *,
     client: Optional[aiobotocore.session.ClientCreatorContext] = None,
     config: Optional[botocore.client.Config] = None,
+    raise_exception: bool = True,
 ) -> LambdaInvocationResponse:
     if client is None:
         client = create_client("lambda", config=config)
@@ -38,5 +51,8 @@ async def invoke(
             received_payload = await received_payload_stream.read()
         except KeyError:
             received_payload = None
+
+        if raise_exception and not is_success_response(received_payload):
+            raise LambdaInvokeError(str(received_payload))  # TODO: 메시지는 변경될 수 있음
 
         return LambdaInvocationResponse(**resp, payload=received_payload)
