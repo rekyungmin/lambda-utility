@@ -82,7 +82,10 @@ def exception_handler(func: LambdaHandlerT) -> LambdaHandlerT:
             return func(event, context)
         except Exception as e:
             raise LambdaRuntimeError(
-                f"Request Id: {context.aws_request_id} Event: {event}\n"
+                f"Request Id: {context.aws_request_id} "
+                f"Exception: {e.__class__.__name__} "
+                f"Message: {str(e)} "
+                f"Event: {event}\n"
                 f"{traceback.format_exc()}"
             ) from e
 
