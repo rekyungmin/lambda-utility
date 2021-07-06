@@ -270,6 +270,26 @@ class SQSMessageResponse(_AWSBaseSchema):
     sequence_number: Optional[str] = None
 
 
+class SQSReceiveMessage(_AWSBaseSchema):
+    message_id: str
+    receipt_handle: str
+    md5_of_body: str = pydantic.Field(..., alias="MD5OfBody")
+    body: str
+    attributes: Optional[Dict[str, Any]]
+    md5_of_message_attributes: Optional[str] = pydantic.Field(
+        None, alias="MD5OfMessageAttributes"
+    )
+    message_attributes: Optional[Dict[str, Dict[str, Any]]]
+
+
+class SQSReceiveMessageResponse(_AWSBaseSchema):
+    """
+    https://botocore.amazonaws.com/v1/documentation/api/latest/reference/services/sqs.html?highlight=sqs#SQS.Client.receive_message
+    """
+
+    messages: List[SQSReceiveMessage] = []
+
+
 class S3Object(BaseSchema):
     bucket: str = pydantic.Field(..., alias="bucket_name")
     key: PathExtField = pydantic.Field(..., alias="object_key")
