@@ -11,7 +11,7 @@ from lambda_utility.schema import LambdaInvocationResponse
 from lambda_utility.session import create_client
 
 
-class LambdaInvokeError(Exception):
+class LambdaFunctionError(Exception):
     pass
 
 
@@ -81,6 +81,6 @@ async def invoke(
         if raise_exception and not _is_success_response(
             resp["ResponseMetadata"]["HTTPHeaders"]
         ):
-            raise LambdaInvokeError(str(result.payload))
+            raise LambdaFunctionError(str(result.payload))
 
         return result
