@@ -103,7 +103,7 @@ async def receive_message(
     queue_url: str,
     attribute_names: Optional[list[str]] = None,
     message_attribute_names: Optional[list[str]] = None,
-    max_number_of_messages: Optional[int] = None,
+    max_number_of_messages: int = 1,
     visibility_timeout: Optional[int] = None,
     wait_time_seconds: Optional[int] = None,
     receive_request_attempt_id: Optional[str] = None,
