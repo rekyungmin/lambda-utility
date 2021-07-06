@@ -5,6 +5,7 @@ __all__ = (
     "send_message",
     "delete_message",
     "receive_message",
+    "change_message_visibility",
 )
 
 from typing import Optional, Any
@@ -132,3 +133,28 @@ async def receive_message(
             ),
         )
         return SQSReceiveMessageResponse(**result)
+
+
+async def change_message_visibility(
+    queue_url: str,
+    receipt_handle: str,
+    visibility_timeout: int,
+    *,
+    client: Optional[aiobotocore.session.ClientCreatorContext] = None,
+    config: Optional[botocore.client.Config] = None,
+) -> None:
+    """Changes the visibility timeout of a specified message in a queue to a new value.
+
+    :ref: https://botocore.amazonaws.com/v1/documentation/api/latest/reference/services/sqs.html?highlight=sqs#SQS.Client.change_message_visibility
+    :exception: SQS.Client.exceptions.MessageNotInflight
+    :exception: SQS.Client.exceptions.ReceiptHandleIsInvalid
+    """
+    if client is None:
+        client = create_client("sqs", config=config)
+
+    async with client as client_obj:
+        await client_obj.change_message_visibility(
+            QueueUrl=queue_url,
+            ReceiptHandle=receipt_handle,
+            VisibilityTimeout=visibility_timeout,
+        )
