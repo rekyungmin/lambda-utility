@@ -24,8 +24,10 @@ async def get_queue_url(
     client: Optional[aiobotocore.session.ClientCreatorContext] = None,
     config: Optional[botocore.client.Config] = None,
 ) -> str:
-    """
-    :exceptions: botocore.errorfactory.QueueDoesNotExist
+    """ Returns the URL of an existing Amazon SQS queue.
+
+    :ref: https://botocore.amazonaws.com/v1/documentation/api/latest/reference/services/sqs.html?highlight=sqs#SQS.Client.get_queue_url
+    :exception: SQS.Client.exceptions.QueueDoesNotExist
     """
     if client is None:
         client = create_client("sqs", config=config)
@@ -47,6 +49,12 @@ async def send_message(
     client: Optional[aiobotocore.session.ClientCreatorContext] = None,
     config: Optional[botocore.client.Config] = None,
 ) -> SQSMessageResponse:
+    """ Delivers a message to the specified queue.
+
+    :ref: https://botocore.amazonaws.com/v1/documentation/api/latest/reference/services/sqs.html?highlight=sqs#SQS.Client.send_message
+    :exception: SQS.Client.exceptions.InvalidMessageContents
+    :exception: SQS.Client.exceptions.UnsupportedOperation
+    """
     if client is None:
         client = create_client("sqs", config=config)
 
