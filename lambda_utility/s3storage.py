@@ -13,6 +13,7 @@ import contextlib
 import dataclasses
 import enum
 import json
+import pathlib
 import tempfile
 from typing import Any, Optional, Literal, BinaryIO, Union, AsyncIterator
 
@@ -219,16 +220,30 @@ async def ctx_download_file(
     *,
     client: Optional[aiobotocore.session.ClientCreatorContext] = None,
     config: Optional[botocore.client.Config] = None,
+    chunk_size: int = DEFAULT_CHUNK_SIZE,
     **kwargs: Any,
 ) -> AsyncIterator[tuple[PathExt, S3GetObjectResponse]]:
     """
     ref: https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/s3.html#S3.Client.get_object
     """
-    suffix = PathExt(key).suffix
-    with tempfile.NamedTemporaryFile(suffix=suffix) as f:
-        resp = await download_object(
-            bucket, key, client=client, config=config, **kwargs
-        )
-        f.write(resp.body or b"")
-        resp.body = None
-        yield PathExt(f.name), resp
+    if client is None:
+        client = create_client("s3", config=config)
+
+    async with client as client_obj:
+        resp = await client_obj.get_object(Bucket=bucket, Key=str(key), **kwargs)
+        suffix = getattr(key, "suffix", pathlib.PurePath(key).suffix)
+        stream = resp["Body"]
+        with tempfile.NamedTemporaryFile(suffix=suffix) as f:
+            async for chunk in stream.iter_chunks(chunk_size=chunk_size):
+                f.write(chunk)
+
+            await client_obj.close()
+
+            result = S3GetObjectResponse(
+                content_type=resp["ContentType"],
+                content_length=resp["ContentLength"],
+                response_metadata=resp["ResponseMetadata"],
+                metadata=resp["Metadata"],
+                body=None,
+            )
+            yield PathExt(f.name), result
