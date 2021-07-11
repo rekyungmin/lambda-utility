@@ -13,7 +13,10 @@ from typing import Optional, Any
 import aiobotocore
 import botocore.client
 
-from lambda_utility.schema import SQSMessageResponse, SQSReceiveMessageResponse
+from lambda_utility.schema import (
+    SQSReceiveMessageResponse,
+    SQSSendMessageResponse,
+)
 from lambda_utility.session import create_client
 
 
@@ -51,7 +54,7 @@ async def send_message(
     message_group_id: Optional[str] = None,
     client: Optional[aiobotocore.session.ClientCreatorContext] = None,
     config: Optional[botocore.client.Config] = None,
-) -> SQSMessageResponse:
+) -> SQSSendMessageResponse:
     """Delivers a message to the specified queue.
 
     :ref: https://botocore.amazonaws.com/v1/documentation/api/latest/reference/services/sqs.html?highlight=sqs#SQS.Client.send_message
@@ -74,7 +77,7 @@ async def send_message(
             )
         )
 
-        return SQSMessageResponse(**result)
+        return SQSSendMessageResponse(**result)
 
 
 async def delete_message(

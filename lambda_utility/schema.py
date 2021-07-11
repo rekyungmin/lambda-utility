@@ -18,7 +18,9 @@ __all__ = (
     "S3HeadObjectResponse",
     "LambdaInvocationResponse",
     "LambdaErrorResponse",
-    "SQSMessageResponse",
+    "SQSSendMessageResponse",
+    "SQSReceiveMessage",
+    "SQSReceiveMessageResponse",
     "S3Object",
     "ImageMeta",
     "PostProcessing",
@@ -259,7 +261,7 @@ class LambdaErrorResponse(BaseSchema):
     stack_trace: List[str]
 
 
-class SQSMessageResponse(_AWSBaseSchema):
+class SQSSendMessageResponse(_AWSBaseSchema):
     """
     https://botocore.amazonaws.com/v1/documentation/api/latest/reference/services/sqs.html#SQS.Client.send_message
     """
